@@ -1,10 +1,3 @@
-// Delivery Tracker — Exercício do Cap. 4.
-// Este é o ponto de entrada. Ele deve APENAS configurar o app e montar as rotas.
-// A regra de negócio fica no Service; o acesso a dados no Repository; a
-// composição das dependências (injeção) fica no seu arquivo de rotas.
-//
-// Comece implementando as camadas em src/ (veja o README) e vá rodando o
-// autograder: `npm run check` (com o servidor no ar) ou pela aba Actions no push.
 import express from 'express';
 // import { criarRotas } from './src/routes/index.js';  // <- descomente quando criar as rotas
 
