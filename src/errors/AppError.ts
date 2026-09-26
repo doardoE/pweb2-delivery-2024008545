@@ -9,7 +9,7 @@ export class AppError extends Error {
 
 export class NotFoundError extends AppError {
   constructor(message: string = "Recurso não encontrado") {
-    super(message, HttpEnum.BAD_REQUEST);
+    super(message, HttpEnum.NOT_FOUND);
     this.name = "NotFoundError";
   }
 }
