@@ -16,7 +16,10 @@ export class EntregaRequestDTO implements Pick<
   }
 
   public campoObrigatorio(dado: string) {
-    if (!dado) throw new ValidationError(`O campo ${dado} é obrigatório`);
+    if (!dado)
+      throw new ValidationError(
+        `Os campos descrição, origem e destino são obrigatórios`,
+      );
     return dado;
   }
 }
