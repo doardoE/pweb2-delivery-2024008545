@@ -1,6 +1,6 @@
 import type { StatusEntrega } from "../../enums/StatusEntregaEnum.js";
 import type { IEntrega } from "../../interfaces/IEntrega.js";
-import type { IEvento } from "../../interfaces/IEvento.js";
+import type { EventoResponseDTO } from "./EventoResponseDTO.js";
 
 export class EntregaResponseDTO implements IEntrega {
   id: number;
@@ -9,7 +9,7 @@ export class EntregaResponseDTO implements IEntrega {
   destino: string;
   status: StatusEntrega;
   motoristaId: number | null;
-  historico: IEvento[];
+  historico: EventoResponseDTO[];
 
   constructor(dados: IEntrega) {
     this.id = dados.id;
