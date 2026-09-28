@@ -1,5 +1,4 @@
 import { BusinessRuleError } from "../errors/AppError.js";
-import type { IEntrega } from "../interfaces/IEntrega.js";
 
 export enum StatusEntrega {
   CRIADA = "CRIADA",

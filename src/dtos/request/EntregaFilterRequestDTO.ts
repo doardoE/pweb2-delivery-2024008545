@@ -6,7 +6,7 @@ export class EntregaFilterRequestDTO implements TEntregasFilter {
 
   constructor(dados: TEntregasFilter) {
     if (dados.status) {
-      this.status = StatusEntrega.fromString(dados.status)
+      this.status = StatusEntrega.fromString(dados.status);
     }
   }
 }
