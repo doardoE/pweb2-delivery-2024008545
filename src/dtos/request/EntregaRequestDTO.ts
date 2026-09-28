@@ -1,5 +1,5 @@
-import { ValidationError } from "../../errors/AppError.js";
 import type { IEntrega } from "../../interfaces/IEntrega.js";
+import { validaCampoObrigatorio } from "../../utils/validaCampoObrigatorio.js";
 
 export class EntregaRequestDTO implements Pick<
   IEntrega,
@@ -10,16 +10,8 @@ export class EntregaRequestDTO implements Pick<
   destino: string;
 
   constructor(dados: IEntrega) {
-    this.descricao = this.campoObrigatorio(dados.descricao);
-    this.origem = this.campoObrigatorio(dados.origem);
-    this.destino = this.campoObrigatorio(dados.destino);
-  }
-
-  public campoObrigatorio(dado: string) {
-    if (!dado)
-      throw new ValidationError(
-        `Os campos descrição, origem e destino são obrigatórios`,
-      );
-    return dado;
+    this.descricao = validaCampoObrigatorio(dados.descricao, "descricao");
+    this.origem = validaCampoObrigatorio(dados.origem, "origem");
+    this.destino = validaCampoObrigatorio(dados.destino, "destino");
   }
 }
