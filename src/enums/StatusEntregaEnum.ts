@@ -1,4 +1,4 @@
-import { BusinessRuleError } from "../errors/AppError.js";
+import { BusinessRuleError, ValidationError } from "../errors/AppError.js";
 
 export enum StatusEntrega {
   CRIADA = "CRIADA",
@@ -31,6 +31,10 @@ export namespace StatusEntrega {
   }
 
   export function fromString(status: string): StatusEntrega {
-    return status.trim().toUpperCase() as StatusEntrega;
+    const sts = status.trim().toUpperCase() as StatusEntrega;
+    if (!Object.values(StatusEntrega).includes(sts)) {
+      throw new ValidationError("Status inválido");
+    }
+    return sts;
   }
 }
