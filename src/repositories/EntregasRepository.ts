@@ -26,8 +26,8 @@ export class EntregasRepository {
     return this.db.entregas;
   }
 
-  public buscaPorId(id: number): IEntrega | undefined {
-    return this.db.entregas.find((entrega) => entrega.id === id);
+  public buscaPorId(id: number): IEntrega | null {
+    return this.db.entregas.find((entrega) => entrega.id === id) || null;
   }
 
   public cria(dados: CriaEntregaParams): IEntrega {
@@ -48,7 +48,7 @@ export class EntregasRepository {
     id: number,
     dados: Partial<AtualizaEntregaParams>,
     descricaoHistorico: string = "Dados atualizados manualmente",
-  ): IEntrega | undefined {
+  ): IEntrega | null {
     const entrega = this.buscaPorId(id);
 
     if (entrega) {
