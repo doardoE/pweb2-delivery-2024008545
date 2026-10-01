@@ -4,9 +4,9 @@ import type { IEntrega } from "../interfaces/IEntrega.js";
 import { IEvento } from "../interfaces/IEvento.js";
 
 //  fica com os campos: descicao, origem e destino
-export type CriaEntregaParams = Omit<
+export type CriaEntregaParams = Pick<
   IEntrega,
-  "id" | "status" | "motoristaId" | "historico"
+  'descricao' | 'origem' | 'destino'
 >;
 
 // pode atualizar tudo menos id e histórico (apenas insere)
