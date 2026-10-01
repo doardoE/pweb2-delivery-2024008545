@@ -9,3 +9,4 @@ entregasRouter.post("/", entregasController.cria);
 entregasRouter.patch("/:id/avancar", entregasController.avanca);
 entregasRouter.patch("/:id/cancelar", entregasController.cancela);
 entregasRouter.get("/:id/historico", entregasController.historico);
+entregasRouter.patch("/:id/atribuir", entregasController.atribui);
