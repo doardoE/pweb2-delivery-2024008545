@@ -1,5 +1,6 @@
 import type { EntregaFilterRequestDTO } from "../dtos/request/EntregaFilterRequestDTO.js";
 import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
+import { Status } from "../enums/StatusEnum.js";
 import {
   AppError,
   BusinessRuleError,
@@ -13,9 +14,13 @@ import type {
   CriaEntregaParams,
   EntregasRepository,
 } from "../repositories/EntregasRepository.js";
+import type { MotoristasRepository } from "../repositories/MotoristasRepository.js";
 
 export class EntregasService {
-  constructor(private entregasRepository: EntregasRepository) {}
+  constructor(
+    private entregasRepository: EntregasRepository,
+    private motoristaRepository: MotoristasRepository,
+  ) {}
 
   async lista(filtro: EntregaFilterRequestDTO): Promise<IEntrega[]> {
     return await this.entregasRepository.lista(filtro);
@@ -88,5 +93,31 @@ export class EntregasService {
   async historico(id: number): Promise<IEvento[]> {
     const entrega = await this.buscaPorId(id);
     return entrega.historico;
+  }
+
+  async atribui(idEntrega: number, idMotorista: number): Promise<IEntrega> {
+    const entrega = this.buscaPorId(idEntrega);
+
+    if ((await entrega).status !== StatusEntrega.CRIADA) {
+      throw new BusinessRuleError("Não é possível atribuir entrega sem status CRIADA");
+    }
+
+    const motorista = this.motoristaRepository.buscaPorId(idMotorista);
+    if (!motorista) {
+      throw new NotFoundError("Motorista não encontrado");
+    }
+
+    if (motorista.status === Status.INATIVO) {
+      throw new BusinessRuleError("Motorista está inativo");
+    }
+
+    const atualizado = await this.entregasRepository.atualiza(
+      (await entrega).id,
+      { motoristaId: motorista.id },
+      `Motorista ${motorista.nome} atribuído a entrega`,
+    );
+    if (!atualizado)
+      throw new AppError("Erro interno ao atualizar a entrega", 500);
+    return atualizado;
   }
 }
