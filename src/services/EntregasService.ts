@@ -15,6 +15,7 @@ import type {
   EntregasRepository,
 } from "../repositories/EntregasRepository.js";
 import type { MotoristasRepository } from "../repositories/MotoristasRepository.js";
+import type { IdParam } from "../interfaces/IEntrega.js";
 
 export class EntregasService {
   constructor(
@@ -95,11 +96,13 @@ export class EntregasService {
     return entrega.historico;
   }
 
-  async atribui(idEntrega: number, idMotorista: number): Promise<IEntrega> {
-    const entrega = this.buscaPorId(idEntrega);
+  async atribui(idEntrega: IdParam, idMotorista: number): Promise<IEntrega> {
+    const entrega = await this.buscaPorId(idEntrega.id);
 
-    if ((await entrega).status !== StatusEntrega.CRIADA) {
-      throw new BusinessRuleError("Não é possível atribuir entrega sem status CRIADA");
+    if (entrega.status !== StatusEntrega.CRIADA) {
+      throw new BusinessRuleError(
+        "Não é possível atribuir entrega sem status CRIADA",
+      );
     }
 
     const motorista = this.motoristaRepository.buscaPorId(idMotorista);
@@ -112,7 +115,7 @@ export class EntregasService {
     }
 
     const atualizado = await this.entregasRepository.atualiza(
-      (await entrega).id,
+      entrega.id,
       { motoristaId: motorista.id },
       `Motorista ${motorista.nome} atribuído a entrega`,
     );
