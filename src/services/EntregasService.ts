@@ -36,13 +36,7 @@ export class EntregasService {
   }
 
   async cria(dados: CriaEntregaParams): Promise<IEntrega> {
-    const { descricao, origem, destino } = dados;
-
-    if (!dados || !descricao || !origem || !descricao) {
-      throw new ValidationError(
-        "descricao, origem ou destino não podem ser vazios",
-      );
-    }
+    const { origem, destino } = dados;
 
     if (origem === destino) {
       throw new ValidationError("origem não pode ser igual a destino");
