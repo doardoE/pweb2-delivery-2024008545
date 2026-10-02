@@ -4,7 +4,7 @@ import { MotoristasRepository } from "../repositories/MotoristasRepository.js";
 import { Status } from "../enums/StatusEnum.js";
 import type { CriaMotoristaParams } from "../interfaces/IMorotista.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
-import type { TEntregasFilter } from "../repositories/EntregasRepository.js";
+import type { TEntregasFilter } from "../interfaces/IEntrega.js";
 
 export class MotoristasService {
   constructor(private motoristasRepository: MotoristasRepository) {}
@@ -43,10 +43,14 @@ export class MotoristasService {
     return await this.motoristasRepository.cria(motorista);
   }
 
-  async listaEntregas(id: number, filtro: TEntregasFilter): Promise<IEntrega[]> {
+  async listaEntregas(
+    id: number,
+    filtro: TEntregasFilter,
+  ): Promise<IEntrega[]> {
     const motorista = await this.buscaPorId(id);
     return await this.motoristasRepository.listaEntregasPorMotoristaId(
-      motorista.id, filtro
+      motorista.id,
+      filtro,
     );
   }
 }

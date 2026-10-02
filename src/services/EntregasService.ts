@@ -1,4 +1,3 @@
-import type { EntregaFilterRequestDTO } from "../dtos/request/EntregaFilterRequestDTO.js";
 import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
 import { Status } from "../enums/StatusEnum.js";
 import {
@@ -10,12 +9,13 @@ import {
 } from "../errors/AppError.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
 import type { IEvento } from "../interfaces/IEvento.js";
-import type {
-  CriaEntregaParams,
-  EntregasRepository,
-} from "../repositories/EntregasRepository.js";
 import type { MotoristasService } from "./MotoristasService.js";
 import type { IdParam } from "../interfaces/IEntrega.js";
+import type {
+  CriaEntregaParams,
+  TEntregasFilter,
+} from "../interfaces/IEntrega.js";
+import { EntregasRepository } from "../repositories/EntregasRepository.js";
 
 export class EntregasService {
   constructor(
@@ -23,7 +23,7 @@ export class EntregasService {
     private motoristasService: MotoristasService,
   ) {}
 
-  async lista(filtro: EntregaFilterRequestDTO): Promise<IEntrega[]> {
+  async lista(filtro: TEntregasFilter): Promise<IEntrega[]> {
     return await this.entregasRepository.lista(filtro);
   }
 

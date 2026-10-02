@@ -1,7 +1,7 @@
 import type { IMotorista } from "../interfaces/IMorotista.js";
 import type { Banco } from "../database/Banco.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
-import type { TEntregasFilter } from "./EntregasRepository.js";
+import type { TEntregasFilter } from "../interfaces/IEntrega.js";
 
 export class MotoristasRepository {
   constructor(private db: Banco) {}

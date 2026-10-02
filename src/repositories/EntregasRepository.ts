@@ -2,17 +2,11 @@ import { Banco } from "../database/Banco.js";
 import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
 import { IEvento } from "../interfaces/IEvento.js";
-
-//  fica com os campos: descicao, origem e destino
-export type CriaEntregaParams = Pick<
-  IEntrega,
-  'descricao' | 'origem' | 'destino'
->;
-
-// pode atualizar tudo menos id e histórico (apenas insere)
-export type AtualizaEntregaParams = Omit<IEntrega, "id" | "historico">;
-
-export type TEntregasFilter = Partial<Pick<IEntrega, "status">>;
+import type {
+  CriaEntregaParams,
+  AtualizaEntregaParams,
+  TEntregasFilter,
+} from "../interfaces/IEntrega.js";
 
 export class EntregasRepository {
   constructor(private db: Banco) {}

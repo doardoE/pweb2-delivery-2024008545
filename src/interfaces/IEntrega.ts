@@ -12,3 +12,14 @@ export interface IEntrega {
 }
 
 export type IdParam = Pick<IEntrega, "id">;
+
+//  fica com os campos: descicao, origem e destino
+export type CriaEntregaParams = Pick<
+  IEntrega,
+  'descricao' | 'origem' | 'destino'
+>;
+
+// pode atualizar tudo menos id e histórico (apenas insere)
+export type AtualizaEntregaParams = Omit<IEntrega, "id" | "historico">;
+
+export type TEntregasFilter = Partial<Pick<IEntrega, "status">>;
