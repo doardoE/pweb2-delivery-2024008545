@@ -10,3 +10,5 @@ export interface IEntrega {
   motoristaId: number | null;
   historico: IEvento[];
 }
+
+export type IdParam = Pick<IEntrega, "id">;
