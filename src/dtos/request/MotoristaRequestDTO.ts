@@ -1,6 +1,5 @@
 import type { IMotorista } from "../../interfaces/IMorotista.js";
 import { validaCampoObrigatorio } from "../../utils/validaCampoObrigatorio.js";
-import { ValidationError } from "../../errors/AppError.js";
 import type { CriaMotoristaParams } from "../../interfaces/IMorotista.js";
 
 export class MotoristasRequestDTO implements CriaMotoristaParams {
@@ -13,5 +12,4 @@ export class MotoristasRequestDTO implements CriaMotoristaParams {
     this.cpf = validaCampoObrigatorio(motorista.cpf, "cpf");
     this.placaVeiculo = motorista.placaVeiculo ?? null;
   }
-
 }
