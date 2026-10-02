@@ -13,8 +13,8 @@ const entregasRepository = new EntregasRepository(db);
 const motoristasRepository = new MotoristasRepository(db);
 
 //services
-const entregasService = new EntregasService(entregasRepository, motoristasRepository);
 const motoristasService = new MotoristasService(motoristasRepository);
+const entregasService = new EntregasService(entregasRepository, motoristasService);
 // controllers
 export const entregasController = new EntregasController(entregasService);
 export const motoristasController = new MotoristasController(motoristasService);

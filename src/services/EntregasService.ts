@@ -14,13 +14,13 @@ import type {
   CriaEntregaParams,
   EntregasRepository,
 } from "../repositories/EntregasRepository.js";
-import type { MotoristasRepository } from "../repositories/MotoristasRepository.js";
+import type { MotoristasService } from "./MotoristasService.js";
 import type { IdParam } from "../interfaces/IEntrega.js";
 
 export class EntregasService {
   constructor(
     private entregasRepository: EntregasRepository,
-    private motoristaRepository: MotoristasRepository,
+    private motoristasService: MotoristasService,
   ) {}
 
   async lista(filtro: EntregaFilterRequestDTO): Promise<IEntrega[]> {
@@ -99,10 +99,7 @@ export class EntregasService {
       );
     }
 
-    const motorista = this.motoristaRepository.buscaPorId(idMotorista);
-    if (!motorista) {
-      throw new NotFoundError("Motorista não encontrado");
-    }
+    const motorista = await this.motoristasService.buscaPorId(idMotorista);
 
     if (motorista.status === Status.INATIVO) {
       throw new BusinessRuleError("Motorista está inativo");
