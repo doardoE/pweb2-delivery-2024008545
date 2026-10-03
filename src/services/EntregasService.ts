@@ -1,5 +1,5 @@
-import type { EntregaFilterRequestDTO } from "../dtos/request/EntregaFilterRequestDTO.js";
 import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
+import { Status } from "../enums/StatusEnum.js";
 import {
   AppError,
   BusinessRuleError,
@@ -8,16 +8,22 @@ import {
   ValidationError,
 } from "../errors/AppError.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
-import type { IEvento } from "../interfaces/IEvento.js";
+import { IEvento } from "../interfaces/IEvento.js";
+import type { MotoristasService } from "./MotoristasService.js";
+import type { IdParam } from "../interfaces/IEntrega.js";
 import type {
   CriaEntregaParams,
-  EntregasRepository,
-} from "../repositories/EntregasRepository.js";
+  TEntregasFilter,
+} from "../interfaces/IEntrega.js";
+import { EntregasRepository } from "../repositories/EntregasRepository.js";
 
 export class EntregasService {
-  constructor(private entregasRepository: EntregasRepository) {}
+  constructor(
+    private entregasRepository: EntregasRepository,
+    private motoristasService: MotoristasService,
+  ) {}
 
-  async lista(filtro: EntregaFilterRequestDTO): Promise<IEntrega[]> {
+  async lista(filtro?: TEntregasFilter): Promise<IEntrega[]> {
     return await this.entregasRepository.lista(filtro);
   }
 
@@ -30,23 +36,24 @@ export class EntregasService {
   }
 
   async cria(dados: CriaEntregaParams): Promise<IEntrega> {
-    const { descricao, origem, destino } = dados;
-
-    if (!dados || !descricao || !origem || !descricao) {
-      throw new ValidationError(
-        "descricao, origem ou destino não podem ser vazios",
-      );
-    }
+    const { origem, destino } = dados;
 
     if (origem === destino) {
       throw new ValidationError("origem não pode ser igual a destino");
     }
 
-    if (this.entregasRepository.exists(dados)) {
+    if (await this.entregasRepository.exists(dados)) {
       throw new ConflictError("Já existe um entrega ativa com esses dados");
     }
 
-    const entrega = await this.entregasRepository.cria(dados);
+    const dto: Omit<IEntrega, "id"> = {
+      ...dados,
+      status: StatusEntrega.CRIADA,
+      motoristaId: null,
+      historico: [IEvento.cria(StatusEntrega.toString(StatusEntrega.CRIADA))],
+    };
+
+    const entrega = await this.entregasRepository.cria(dto);
     return entrega;
   }
 
@@ -88,5 +95,30 @@ export class EntregasService {
   async historico(id: number): Promise<IEvento[]> {
     const entrega = await this.buscaPorId(id);
     return entrega.historico;
+  }
+
+  async atribui(idEntrega: IdParam, idMotorista: number): Promise<IEntrega> {
+    const entrega = await this.buscaPorId(idEntrega.id);
+
+    if (entrega.status !== StatusEntrega.CRIADA) {
+      throw new BusinessRuleError(
+        "Não é possível atribuir entrega sem status CRIADA",
+      );
+    }
+
+    const motorista = await this.motoristasService.buscaPorId(idMotorista);
+
+    if (motorista.status === Status.INATIVO) {
+      throw new BusinessRuleError("Motorista está inativo");
+    }
+
+    const atualizado = await this.entregasRepository.atualiza(
+      entrega.id,
+      { motoristaId: motorista.id },
+      `Motorista ${motorista.nome} atribuído a entrega`,
+    );
+    if (!atualizado)
+      throw new AppError("Erro interno ao atualizar a entrega", 500);
+    return atualizado;
   }
 }

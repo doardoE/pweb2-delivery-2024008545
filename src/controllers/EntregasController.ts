@@ -6,6 +6,7 @@ import type { IEntrega } from "../interfaces/IEntrega.js";
 import type { IEvento } from "../interfaces/IEvento.js";
 import { EventoResponseDTO } from "../dtos/response/EventoResponseDTO.js";
 import { EntregaFilterRequestDTO } from "../dtos/request/EntregaFilterRequestDTO.js";
+import { IdRequestDTO } from "../dtos/request/IdRequestDTO.js";
 
 export class EntregasController {
   constructor(private entregasService: EntregasService) {}
@@ -73,6 +74,20 @@ export class EntregasController {
         (historico) => new EventoResponseDTO(historico),
       );
       res.json(lista);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  atribui = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const idEntrega = new IdRequestDTO(Number(req.params.id));
+      const idMotorista = Number(req.body.motoristaId);
+      const entrega: IEntrega = await this.entregasService.atribui(
+        idEntrega,
+        idMotorista,
+      );
+      res.json(new EntregaResponseDTO(entrega));
     } catch (err) {
       next(err);
     }

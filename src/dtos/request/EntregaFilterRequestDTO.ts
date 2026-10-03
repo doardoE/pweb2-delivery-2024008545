@@ -1,5 +1,5 @@
 import { StatusEntrega } from "../../enums/StatusEntregaEnum.js";
-import type { TEntregasFilter } from "../../repositories/EntregasRepository.js";
+import type { TEntregasFilter } from "../../interfaces/IEntrega.js";
 
 export class EntregaFilterRequestDTO implements TEntregasFilter {
   status?: StatusEntrega;
