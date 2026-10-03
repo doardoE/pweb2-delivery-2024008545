@@ -8,7 +8,7 @@ import {
   ValidationError,
 } from "../errors/AppError.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
-import type { IEvento } from "../interfaces/IEvento.js";
+import { IEvento } from "../interfaces/IEvento.js";
 import type { MotoristasService } from "./MotoristasService.js";
 import type { IdParam } from "../interfaces/IEntrega.js";
 import type {
@@ -42,11 +42,18 @@ export class EntregasService {
       throw new ValidationError("origem não pode ser igual a destino");
     }
 
-    if (this.entregasRepository.exists(dados)) {
+    if (await this.entregasRepository.exists(dados)) {
       throw new ConflictError("Já existe um entrega ativa com esses dados");
     }
 
-    const entrega = await this.entregasRepository.cria(dados);
+    const dto: Omit<IEntrega, "id"> = {
+      ...dados,
+      status: StatusEntrega.CRIADA,
+      motoristaId: null,
+      historico: [IEvento.cria(StatusEntrega.toString(StatusEntrega.CRIADA))],
+    };
+
+    const entrega = await this.entregasRepository.cria(dto);
     return entrega;
   }
 
