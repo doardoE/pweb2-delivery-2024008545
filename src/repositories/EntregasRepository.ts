@@ -12,7 +12,7 @@ import type { IEntregasRepository } from "../interfaces/IEntregasRepository.js";
 export class EntregasRepository implements IEntregasRepository {
   constructor(private db: Banco) {}
 
-  public async lista(filtro: TEntregasFilter): Promise<IEntrega[]> {
+  public async lista(filtro?: TEntregasFilter): Promise<IEntrega[]> {
     if (filtro && filtro.status)
       return this.db.entregas.filter(
         (entrega) => entrega.status === filtro.status,

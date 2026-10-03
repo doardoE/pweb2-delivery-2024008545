@@ -23,7 +23,7 @@ export class EntregasService {
     private motoristasService: MotoristasService,
   ) {}
 
-  async lista(filtro: TEntregasFilter): Promise<IEntrega[]> {
+  async lista(filtro?: TEntregasFilter): Promise<IEntrega[]> {
     return await this.entregasRepository.lista(filtro);
   }
 

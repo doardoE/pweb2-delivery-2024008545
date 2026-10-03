@@ -13,7 +13,7 @@ export interface IEntregasRepository {
    * @param filtro Filtro para aplicar na listagem de entregas, pode ser [ENTREGUE, EM_TRANSITO, ENTREGUE, CANCELADA].
    * @returns Uma promessa que devolve um array de entregas.
    */
-  lista(filtro: TEntregasFilter): Promise<IEntrega[]>;
+  lista(filtro?: TEntregasFilter): Promise<IEntrega[]>;
 
   /**
    * Busca uma entrega por seu ID.
