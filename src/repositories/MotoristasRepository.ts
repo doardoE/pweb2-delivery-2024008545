@@ -2,25 +2,26 @@ import type { IMotorista } from "../interfaces/IMorotista.js";
 import type { Banco } from "../database/Banco.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
 import type { TEntregasFilter } from "../interfaces/IEntrega.js";
+import type { IMotoristasRepository } from "../interfaces/IMotoristasRepository.js";
 
-export class MotoristasRepository {
+export class MotoristasRepository implements IMotoristasRepository {
   constructor(private db: Banco) {}
 
-  public lista(): IMotorista[] {
+  public async lista(): Promise<IMotorista[]> {
     return this.db.morotistas;
   }
 
-  public buscaPorId(id: number): IMotorista | null {
+  public async buscaPorId(id: number): Promise<IMotorista | null> {
     return this.db.morotistas.find((motorista) => motorista.id === id) || null;
   }
 
-  public buscaPorCpf(cpf: string): IMotorista | null {
+  public async buscaPorCpf(cpf: string): Promise<IMotorista | null> {
     return (
       this.db.morotistas.find((motorista) => motorista.cpf === cpf) || null
     );
   }
 
-  public cria(dados: Omit<IMotorista, "id">): IMotorista {
+  public async cria(dados: Omit<IMotorista, "id">): Promise<IMotorista> {
     const motorista: IMotorista = {
       id: this.db.proximoIdMotoristas,
       ...dados,
@@ -30,11 +31,11 @@ export class MotoristasRepository {
     return motorista;
   }
 
-  public atualiza(
+  public async atualiza(
     id: number,
     dados: Partial<Omit<IMotorista, "id">>,
-  ): IMotorista | null {
-    const motorista = this.buscaPorId(id);
+  ): Promise<IMotorista | null> {
+    const motorista = await this.buscaPorId(id);
 
     if (motorista) {
       Object.assign(motorista, dados);
@@ -43,10 +44,10 @@ export class MotoristasRepository {
     return motorista;
   }
 
-  public listaEntregasPorMotoristaId(
+  public async listaEntregasPorMotoristaId(
     id: number,
     filtro: TEntregasFilter,
-  ): IEntrega[] {
+  ): Promise<IEntrega[]> {
     if (filtro && filtro.status) {
       return this.db.entregas.filter(
         (entrega) =>
