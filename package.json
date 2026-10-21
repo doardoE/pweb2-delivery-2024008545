@@ -7,7 +7,9 @@
     "build": "tsc",
     "start": "npm run build && node dist/server.js",
     "dev": "tsx watch server.ts",
-    "check": "node autograder/check.mjs"
+    "check": "node autograder/check.mjs",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",
