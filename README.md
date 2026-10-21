@@ -30,21 +30,41 @@ Certifique-se de ter o **Node.js** (versão 18 ou superior) instalado em sua má
 
 ### Passos para execução
 
-1. Clone este repositório para a sua máquina local.
-2. Acesse a pasta do projeto e instale as dependências:
+1. Clone este repositório e acesse a pasta do projeto.
+2. Instale as dependências:
 
 ```bash
 npm install
 ```
 
-3. inicie o servidor:
+3. Crie o arquivo `.env` na raiz do projeto. Copie e cole este conteúdo:
+
+```env
+DATABASE_URL="file:./src/database/banco.db"
+```
+
+A pasta `src/database` já está incluída no repositório. O arquivo do banco SQLite será criado ou atualizado pelos comandos abaixo.
+
+4. Gere o Prisma Client e sincronize o banco SQLite com o schema:
+
+```bash
+npm run db:generate
+npm run db:push
+```
+
+5. Compile o projeto:
+
+```bash
+npm run build
+```
+
+6. Inicie o servidor:
 
 ```bash
 npm start
 ```
 
 O servidor estará rodando no endereço `http://localhost:3000`.
-
 ### Rodando os testes (Autograder)
 
 O projeto conta com um script de avaliação automática. Para rodá-lo:
