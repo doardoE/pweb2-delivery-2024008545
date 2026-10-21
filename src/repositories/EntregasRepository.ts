@@ -7,7 +7,7 @@ import type {
   TEntregasFilter,
 } from "../interfaces/IEntrega.js";
 import type { IEntregasRepository } from "../interfaces/IEntregasRepository.js";
-import type { PrismaClient } from "../generated/prisma/client";
+import type { PrismaClient } from "../generated/prisma/client.js";
 
 export class EntregasRepository implements IEntregasRepository {
   constructor(private readonly db: PrismaClient) { }
