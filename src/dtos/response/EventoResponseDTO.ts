@@ -1,7 +1,7 @@
 import type { IEvento } from "../../interfaces/IEvento.js";
 
 export class EventoResponseDTO implements IEvento {
-  data: string;
+  data: Date;
   descricao: string;
 
   constructor(dados: IEvento) {
