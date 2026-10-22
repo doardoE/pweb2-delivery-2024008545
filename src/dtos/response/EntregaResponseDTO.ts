@@ -1,6 +1,6 @@
-import type { StatusEntrega } from "../../enums/StatusEntregaEnum.js";
+import { StatusEntrega } from "../../enums/StatusEntregaEnum.js";
 import type { IEntrega } from "../../interfaces/IEntrega.js";
-import type { EventoResponseDTO } from "./EventoResponseDTO.js";
+import { EventoResponseDTO } from "./EventoResponseDTO.js";
 
 export class EntregaResponseDTO implements IEntrega {
   id: number;
@@ -16,8 +16,8 @@ export class EntregaResponseDTO implements IEntrega {
     this.descricao = dados.descricao;
     this.origem = dados.origem;
     this.destino = dados.destino;
-    this.status = dados.status;
+    this.status = StatusEntrega.fromString(dados.status);
     this.motoristaId = dados.motoristaId;
-    this.historico = dados.historico;
+    this.historico = dados.historico.map((e) => new EventoResponseDTO(e));
   }
 }
