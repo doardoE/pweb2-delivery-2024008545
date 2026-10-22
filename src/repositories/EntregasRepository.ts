@@ -1,4 +1,3 @@
-import { Banco } from "../database/Banco.js";
 import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
 import { IEvento } from "../interfaces/IEvento.js";
@@ -8,31 +7,53 @@ import type {
   TEntregasFilter,
 } from "../interfaces/IEntrega.js";
 import type { IEntregasRepository } from "../interfaces/IEntregasRepository.js";
+import type { PrismaClient } from "../generated/prisma/client.js";
 
 export class EntregasRepository implements IEntregasRepository {
-  constructor(private db: Banco) {}
+  constructor(private readonly db: PrismaClient) { }
 
   public async lista(filtro?: TEntregasFilter): Promise<IEntrega[]> {
-    if (filtro && filtro.status)
-      return this.db.entregas.filter(
-        (entrega) => entrega.status === filtro.status,
-      );
+    const entregas = await this.db.entrega.findMany({
+      where: filtro?.status ? { status: filtro.status } : {},
+      include: { historico: true },
+    });
 
-    return this.db.entregas;
+    return entregas.map((entrega) => ({
+      ...entrega,
+      status: StatusEntrega.fromString(entrega.status),
+    }));
   }
 
   public async buscaPorId(id: number): Promise<IEntrega | null> {
-    return this.db.entregas.find((entrega) => entrega.id === id) || null;
+    const entrega = await this.db.entrega.findUnique({
+      where: { id },
+      include: { historico: true },
+    })
+
+    return entrega ? {
+      ...entrega,
+      status: StatusEntrega.fromString(entrega.status),
+    } : null
   }
 
   public async cria(dados: Omit<IEntrega, "id">): Promise<IEntrega> {
-    const entrega: IEntrega = {
-      id: this.db.proximoIdEntregas,
-      ...dados,
+    const entrega = await this.db.entrega.create({
+      data: {
+        ...dados,
+        historico: {
+          create: dados.historico.map(evento => ({
+            descricao: evento.descricao
+          }))
+        }
+      },
+      include: { historico: true }
+    });
+
+    return {
+      ...entrega,
+      status: StatusEntrega.fromString(entrega.status),
     };
-    this.db.entregas.push(entrega);
-    this.db.proximoIdEntregas++;
-    return entrega;
+
   }
 
   // método de atualização genérica para usar em avançar e cancelar
@@ -41,25 +62,35 @@ export class EntregasRepository implements IEntregasRepository {
     dados: Partial<AtualizaEntregaParams>,
     descricaoHistorico: string = "Dados atualizados manualmente",
   ): Promise<IEntrega | null> {
-    const entrega = await this.buscaPorId(id);
+    const entrega = await this.db.entrega.update({
+      where: { id },
+      data: {
+        ...dados,
+        historico: {
+          create: IEvento.cria(descricaoHistorico)
+        }
+      },
+      include: { historico: true },
+    })
 
-    if (entrega) {
-      Object.assign(entrega, dados);
-      entrega.historico.push(IEvento.cria(descricaoHistorico));
-    }
-
-    return entrega;
+    return {
+      ...entrega,
+      status: StatusEntrega.fromString(entrega.status),
+    };
   }
 
   // retorna true se os dados passados existem nas entregas
   public async exists(dados: CriaEntregaParams): Promise<boolean> {
-    return this.db.entregas.some(
-      (entrega) =>
-        entrega.descricao === dados.descricao &&
-        entrega.origem === dados.origem &&
-        entrega.destino === dados.destino &&
-        entrega.status != StatusEntrega.ENTREGUE &&
-        entrega.status != StatusEntrega.CANCELADA,
-    );
+
+    const entrega = await this.db.entrega.count({
+      where: {
+        descricao: dados.descricao,
+        origem: dados.origem,
+        destino: dados.destino,
+        status: { in: [StatusEntrega.CRIADA, StatusEntrega.EM_TRANSITO] },
+      },
+    })
+
+    return entrega > 0;
   }
 }

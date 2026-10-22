@@ -1,60 +1,90 @@
 import type { IMotorista } from "../interfaces/IMorotista.js";
-import type { Banco } from "../database/Banco.js";
 import type { IEntrega } from "../interfaces/IEntrega.js";
 import type { TEntregasFilter } from "../interfaces/IEntrega.js";
 import type { IMotoristasRepository } from "../interfaces/IMotoristasRepository.js";
+import type { PrismaClient } from "../generated/prisma/client.js";
+import { Status } from "../enums/StatusEnum.js";
+import { StatusEntrega } from "../enums/StatusEntregaEnum.js";
 
 export class MotoristasRepository implements IMotoristasRepository {
-  constructor(private db: Banco) {}
+  constructor(private readonly db: PrismaClient) { }
 
   public async lista(): Promise<IMotorista[]> {
-    return this.db.morotistas;
+    const motoristas = await this.db.motorista.findMany();
+
+    return motoristas.map(motorista => ({
+      ...motorista,
+      status: Status.fromString(motorista.status)
+    }))
   }
 
   public async buscaPorId(id: number): Promise<IMotorista | null> {
-    return this.db.morotistas.find((motorista) => motorista.id === id) || null;
+    const motorista = await this.db.motorista.findUnique({
+      where: { id }
+    });
+
+    return motorista ? {
+      ...motorista,
+      status: Status.fromString(motorista.status)
+    } : null;
   }
 
   public async buscaPorCpf(cpf: string): Promise<IMotorista | null> {
-    return (
-      this.db.morotistas.find((motorista) => motorista.cpf === cpf) || null
-    );
+    const motorista = await this.db.motorista.findUnique({
+      where: { cpf }
+    });
+
+    return motorista ? {
+      ...motorista,
+      status: Status.fromString(motorista.status)
+    } : null;
   }
 
   public async cria(dados: Omit<IMotorista, "id">): Promise<IMotorista> {
-    const motorista: IMotorista = {
-      id: this.db.proximoIdMotoristas,
-      ...dados,
-    };
-    this.db.morotistas.push(motorista);
-    this.db.proximoIdMotoristas++;
-    return motorista;
+
+    const motorista = await this.db.motorista.create({
+      data: { ...dados }
+    })
+
+    return {
+      ...motorista,
+      status: Status.fromString(motorista.status)
+    }
   }
 
   public async atualiza(
     id: number,
     dados: Partial<Omit<IMotorista, "id">>,
   ): Promise<IMotorista | null> {
-    const motorista = await this.buscaPorId(id);
 
-    if (motorista) {
-      Object.assign(motorista, dados);
+    const motorista = await this.db.motorista.update({
+      where: { id },
+      data: { ...dados }
+    })
+
+    return {
+      ...motorista,
+      status: Status.fromString(motorista.status)
     }
-
-    return motorista;
   }
 
   public async listaEntregasPorMotoristaId(
     id: number,
-    filtro: TEntregasFilter,
+    filtro?: TEntregasFilter,
   ): Promise<IEntrega[]> {
-    if (filtro && filtro.status) {
-      return this.db.entregas.filter(
-        (entrega) =>
-          entrega.motoristaId === id && entrega.status === filtro.status,
-      );
-    }
 
-    return this.db.entregas.filter((entrega) => entrega.motoristaId === id);
+    const entrega = await this.db.entrega.findMany({
+      where: {
+        motoristaId: id,
+        ...(filtro?.status && { status: filtro.status }),
+      },
+      include: { historico: true }
+    })
+
+
+    return entrega.map(entrega => ({
+      ...entrega,
+      status: StatusEntrega.fromString(entrega.status)
+    }))
   }
 }

@@ -4,3 +4,5 @@ npm-debug.log*
 *.db
 .DS_Store
 /dist
+
+/src/generated/prisma
