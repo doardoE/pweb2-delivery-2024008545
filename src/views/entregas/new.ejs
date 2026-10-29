@@ -1,0 +1,61 @@
+<% const editando = Boolean(dados && dados.id); %>
+<div class="form-container">
+  <h1><%= editando ? 'Editar Entrega' : 'Nova Entrega' %></h1>
+
+  <% if (erros && erros.length > 0) { %>
+    <div class="alert alert-error" role="alert">
+      <ul>
+        <% erros.forEach(erro => { %>
+          <li><%= erro %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="POST"
+        action="<%= editando ? `/entregas/${dados.id}?_method=PATCH` : '/entregas' %>"
+        novalidate>
+    <% if (editando) { %><input type="hidden" name="_method" value="PATCH"><% } %>
+
+    <div class="form-group <% if (erros && erros.some(e => e.toLowerCase().includes('descrição') || e.toLowerCase().includes('descricao'))) { %>has-error<% } %>">
+      <label for="descricao">Descrição</label>
+      <input
+        type="text"
+        id="descricao"
+        name="descricao"
+        value="<%= dados.descricao || '' %>"
+        placeholder="Ex.: Pedido 1234"
+        required
+      >
+    </div>
+
+    <div class="form-group <% if (erros && erros.some(e => e.toLowerCase().includes('origem'))) { %>has-error<% } %>">
+      <label for="origem">Origem</label>
+      <input
+        type="text"
+        id="origem"
+        name="origem"
+        value="<%= dados.origem || '' %>"
+        placeholder="Endereço de coleta"
+        required
+      >
+    </div>
+
+    <div class="form-group <% if (erros && erros.some(e => e.toLowerCase().includes('destino'))) { %>has-error<% } %>">
+      <label for="destino">Destino</label>
+      <input
+        type="text"
+        id="destino"
+        name="destino"
+        value="<%= dados.destino || '' %>"
+        placeholder="Endereço de entrega"
+        required
+      >
+    </div>
+
+    <div class="form-actions">
+      <a href="/entregas" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary"><%= editando ? 'Salvar Alterações' : 'Criar Entrega' %></button>
+    </div>
+  </form>
+</div>

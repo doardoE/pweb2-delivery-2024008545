@@ -1,0 +1,32 @@
+<%- include('../partials/flash') %>
+<section class="page-header">
+  <div><h1>Entregas</h1><p>Acompanhe o andamento das entregas cadastradas.</p></div>
+  <a href="/entregas/new" class="btn btn-primary">Nova entrega</a>
+</section>
+
+<form method="get" action="/entregas" class="filter-form">
+  <label for="status">Status</label>
+  <select id="status" name="status">
+    <option value="">Todos</option>
+    <% ['CRIADA', 'EM_TRANSITO', 'ENTREGUE', 'CANCELADA'].forEach(opcao => { %>
+      <option value="<%= opcao %>" <%= statusSelecionado === opcao ? 'selected' : '' %>><%= opcao.replace('_', ' ') %></option>
+    <% }) %>
+  </select>
+  <button class="btn btn-secondary" type="submit">Filtrar</button>
+</form>
+
+<% if (!entregas.length) { %>
+  <div class="card"><p>Nenhuma entrega encontrada.</p></div>
+<% } else { %>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Descrição</th><th>Origem</th><th>Destino</th><th>Status</th><th>Motorista</th><th></th></tr></thead>
+    <tbody><% entregas.forEach(entrega => { %>
+      <tr>
+        <td><%= entrega.descricao %></td><td><%= entrega.origem %></td><td><%= entrega.destino %></td>
+        <td><span class="badge"><%= entrega.status.replace('_', ' ') %></span></td>
+        <td><%= entrega.motoristaId ?? 'Não atribuído' %></td>
+        <td><a href="/entregas/<%= entrega.id %>">Detalhes</a></td>
+      </tr>
+    <% }) %></tbody>
+  </table></div>
+<% } %>

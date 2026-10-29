@@ -1,0 +1,32 @@
+<%- include('../partials/flash') %>
+<a href="/entregas">← Voltar às entregas</a>
+<section class="page-header">
+  <div><p>Entrega #<%= entrega.id %></p><h1><%= entrega.descricao %></h1><span class="badge"><%= entrega.status.replace('_', ' ') %></span></div>
+  <div class="form-actions">
+    <% if (entrega.status === 'CRIADA' || entrega.status === 'EM_TRANSITO') { %>
+      <form method="post" action="/entregas/<%= entrega.id %>/avancar?_method=PATCH"><button class="btn btn-primary" type="submit"><%= entrega.status === 'CRIADA' ? 'Iniciar entrega' : 'Marcar como entregue' %></button></form>
+      <form method="post" action="/entregas/<%= entrega.id %>/cancelar?_method=PATCH"><button class="btn btn-secondary" type="submit">Cancelar</button></form>
+    <% } %>
+  </div>
+</section>
+
+<section class="card">
+  <dl class="details"><dt>Origem</dt><dd><%= entrega.origem %></dd><dt>Destino</dt><dd><%= entrega.destino %></dd><dt>Motorista</dt><dd><%= entrega.motoristaId ?? 'Não atribuído' %></dd></dl>
+  <% if (entrega.status === 'CRIADA' && motoristas.length > 0) { %>
+    <form method="post" action="/entregas/<%= entrega.id %>/atribuir?_method=PATCH" class="form-group">
+      <label for="motoristaId">Atribuir motorista</label>
+      <select id="motoristaId" name="motoristaId" required>
+        <option value="">Selecione um motorista</option>
+        <% motoristas.forEach(motorista => { %><option value="<%= motorista.id %>"><%= motorista.nome %></option><% }) %>
+      </select>
+      <button class="btn btn-primary" type="submit">Atribuir</button>
+    </form>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Histórico</h2>
+  <% if (!entrega.historico.length) { %><p>Nenhum evento registrado.</p><% } else { %>
+    <ol><% entrega.historico.forEach(evento => { %><li><%= evento.descricao %> — <%= new Date(evento.data).toLocaleString('pt-BR') %></li><% }) %></ol>
+  <% } %>
+</section>

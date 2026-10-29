@@ -1,0 +1,4 @@
+<%- include('../partials/flash') %>
+<h1><%= titulo %></h1>
+<a href="/entregas">Voltar às entregas</a>
+<ol><% historico.forEach(evento => { %><li><%= evento.descricao %> — <%= new Date(evento.data).toLocaleString('pt-BR') %></li><% }) %></ol>
