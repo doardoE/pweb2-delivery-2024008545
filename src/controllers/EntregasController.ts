@@ -1,22 +1,25 @@
 import type { Request, Response, NextFunction } from "express";
-import { EntregaResponseDTO } from "../dtos/response/EntregaResponseDTO.js";
-import { EntregaRequestDTO } from "../dtos/request/EntregaRequestDTO.js";
-import type { EntregasService } from "../services/EntregasService.js";
-import type { IEntrega } from "../interfaces/IEntrega.js";
-import type { IEvento } from "../interfaces/IEvento.js";
-import { EventoResponseDTO } from "../dtos/response/EventoResponseDTO.js";
 import { EntregaFilterRequestDTO } from "../dtos/request/EntregaFilterRequestDTO.js";
-import { IdRequestDTO } from "../dtos/request/IdRequestDTO.js";
+import { EntregaRequestDTO } from "../dtos/request/EntregaRequestDTO.js";
+import { AppError } from "../errors/AppError.js";
+import type { EntregasService } from "../services/EntregasService.js";
+import type { MotoristasService } from "../services/MotoristasService.js";
 
 export class EntregasController {
-  constructor(private entregasService: EntregasService) {}
+  constructor(
+    private entregasService: EntregasService,
+    private motoristasService: MotoristasService,
+  ) {}
 
   lista = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const filtro = new EntregaFilterRequestDTO(req.query);
-      const entregas: IEntrega[] = await this.entregasService.lista(filtro);
-      const lista = entregas.map((entrega) => new EntregaResponseDTO(entrega));
-      res.json(lista);
+      const entregas = await this.entregasService.lista(filtro);
+      res.render("entregas/index", {
+        titulo: "Entregas",
+        entregas,
+        statusSelecionado: filtro.status ?? "",
+      });
     } catch (err) {
       next(err);
     }
@@ -24,31 +27,47 @@ export class EntregasController {
 
   buscaPorId = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const entrega: IEntrega = await this.entregasService.buscaPorId(
-        Number(req.params.id),
-      );
-      res.json(new EntregaResponseDTO(entrega));
+      const entrega = await this.entregasService.buscaPorId(Number(req.params.id));
+      const motoristas = await this.motoristasService.lista();
+      res.render("entregas/show", {
+        titulo: `Entrega #${entrega.id}`,
+        entrega,
+        motoristas,
+      });
     } catch (err) {
       next(err);
     }
   };
 
+  novo = (_req: Request, res: Response) => {
+    res.render("entregas/new", { titulo: "Nova entrega", erros: [], dados: {} });
+  };
+
   cria = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto = new EntregaRequestDTO(req.body);
-      const entrega = await this.entregasService.cria(dto);
-      res.status(201).json(new EntregaResponseDTO(entrega));
+      const entrega = await this.entregasService.cria(
+        new EntregaRequestDTO(req.body),
+      );
+      req.flash("sucesso", "Entrega criada.");
+      res.redirect(303, `/entregas/${entrega.id}`);
     } catch (err) {
+      if (err instanceof AppError && err.statusCode < 500) {
+        res.status(err.statusCode).render("entregas/new", {
+          titulo: "Nova entrega",
+          erros: [err.message],
+          dados: req.body,
+        });
+        return;
+      }
       next(err);
     }
   };
 
   avanca = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const entrega: IEntrega = await this.entregasService.avanca(
-        Number(req.params.id),
-      );
-      res.json(new EntregaResponseDTO(entrega));
+      const entrega = await this.entregasService.avanca(Number(req.params.id));
+      req.flash("sucesso", `Entrega avançou para ${entrega.status}.`);
+      res.redirect(303, `/entregas/${entrega.id}`);
     } catch (err) {
       next(err);
     }
@@ -56,10 +75,9 @@ export class EntregasController {
 
   cancela = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const entrega: IEntrega = await this.entregasService.cancela(
-        Number(req.params.id),
-      );
-      res.json(new EntregaResponseDTO(entrega));
+      const entrega = await this.entregasService.cancela(Number(req.params.id));
+      req.flash("sucesso", "Entrega cancelada.");
+      res.redirect(303, `/entregas/${entrega.id}`);
     } catch (err) {
       next(err);
     }
@@ -67,13 +85,8 @@ export class EntregasController {
 
   historico = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const historicos: IEvento[] = await this.entregasService.historico(
-        Number(req.params.id),
-      );
-      const lista = historicos.map(
-        (historico) => new EventoResponseDTO(historico),
-      );
-      res.json(lista);
+      await this.entregasService.historico(Number(req.params.id));
+      res.redirect(303, `/entregas/${req.params.id}`);
     } catch (err) {
       next(err);
     }
@@ -81,13 +94,12 @@ export class EntregasController {
 
   atribui = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const idEntrega = new IdRequestDTO(Number(req.params.id));
-      const idMotorista = Number(req.body.motoristaId);
-      const entrega: IEntrega = await this.entregasService.atribui(
-        idEntrega,
-        idMotorista,
+      const entrega = await this.entregasService.atribui(
+        { id: Number(req.params.id) },
+        Number(req.body.motoristaId),
       );
-      res.json(new EntregaResponseDTO(entrega));
+      req.flash("sucesso", "Motorista atribuído à entrega.");
+      res.redirect(303, `/entregas/${entrega.id}`);
     } catch (err) {
       next(err);
     }
