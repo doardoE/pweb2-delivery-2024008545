@@ -1,0 +1,18 @@
+<!-- src/views/layouts/base.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title><%= typeof titulo !== 'undefined' ? titulo : 'Minha App' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container">
+    <%- body %>   <!-- O conteúdo de cada página é injetado aqui -->
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>
