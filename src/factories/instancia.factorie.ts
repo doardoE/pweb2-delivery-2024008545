@@ -14,5 +14,8 @@ const motoristasRepository = new MotoristasRepository(prisma);
 const motoristasService = new MotoristasService(motoristasRepository);
 const entregasService = new EntregasService(entregasRepository, motoristasService);
 // controllers
-export const entregasController = new EntregasController(entregasService);
+export const entregasController = new EntregasController(
+  entregasService,
+  motoristasService,
+);
 export const motoristasController = new MotoristasController(motoristasService);
