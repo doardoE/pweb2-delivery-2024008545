@@ -4,9 +4,10 @@ import { motoristasRouter } from "./motoristasRouter.js";
 
 export const apiRouter: Router = Router();
 
-// Health check exigido pelo contrato de execução (não remova).
-apiRouter.get("/health", (req, res) => res.json({ status: "ok" }));
+apiRouter.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+// Compatibilidade com verificações antigas de readiness.
+apiRouter.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-// Rotas da api
+apiRouter.get("/", (_req, res) => res.redirect(302, "/entregas"));
 apiRouter.use("/entregas", entregasRouter);
 apiRouter.use("/motoristas", motoristasRouter);
