@@ -1,0 +1,7 @@
+<%- include('../partials/flash') %>
+<a href="/motoristas">← Voltar aos motoristas</a>
+<section class="card">
+  <p>Motorista #<%= motorista.id %></p>
+  <h1><%= motorista.nome %></h1>
+  <dl class="details"><dt>CPF</dt><dd><%= motorista.cpf %></dd><dt>Placa</dt><dd><%= motorista.placaVeiculo || 'Não informada' %></dd><dt>Status</dt><dd><%= motorista.status %></dd></dl>
+</section>
